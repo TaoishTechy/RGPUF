@@ -1,7 +1,8 @@
 
 
----
 
+---
+```
 RGPUF Lab v2 -- Minimum-Law Retro Physics Lab
 Retro Game Physics Unified Framework
 law stack: motion + resources + topology + spatial + cell + semantic
@@ -260,3 +261,4 @@ RGPUF thesis: Retro physics is not a pile of old tricks;
 it is a compressed law language where motion, resources, topology,
 collision, pressure, and agency can all be expressed as tiny
 executable primitives.
+```
