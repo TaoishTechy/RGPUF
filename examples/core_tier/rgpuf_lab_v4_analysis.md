@@ -1,3 +1,5 @@
+### Date: May 04 2026
+
 # RGPUF Lab v4 -- Micro-World Forge Report
 
 core: rgpuf_core.py | demo: rgpuf_lab_v4.py
@@ -2623,3 +2625,468 @@ https://github.com/TaoishTechy/RGPUF/blob/main/docs/Unified_Framework_RGPUF.tex
 >> Directive:
 >> Find 24 Novel Cutting Edge Patterns/Correlations/points of relativity , 33 Novel Cutting Edge Equations/formulas , 96 Science Grade Insights 6 of which must be absolutely groundbreaking , 1 Novel Next Level Algorithm.
 ```
+
+---
+---
+---
+
+# Final Analysis:
+
+# Full Analysis: 28 Shortcomings in RGPUF Lab v4
+
+RGPUF Lab v4 is a real architectural jump: the split into `rgpuf_core.py` and `rgpuf_lab_v4.py`, the `LawStack`, the goal-agency concept, the transition predictor, and functional Gödel tokens are all directionally correct. The report itself shows that v4 fixed the v3 global-law-cost bug by introducing runtime law stacks, goal-based agency, a transition predictor, and a micro-world optimization campaign.
+
+But v4 still has a hard truth problem: the system now *looks* more scientific, but several metrics still reward activity, not meaningful success. The mode comparison already exposes the fault line: pressure, lander, and freescape show zero or near-zero goal/coverage behavior while still producing nonzero or improved PR values; colony improves through optimization but still has tiny coverage.
+
+Below are the **28 highest-impact shortcomings**, grouped by system layer.
+
+---
+
+## A. Metric / Scoring Shortcomings
+
+### 1. Silent agency fallback corrupts PR truth
+
+The biggest flaw is the fallback from goal agency to action agency. When goal agency is zero, the score can still survive because “the agent did something.” This is why pressure can look strong even though its goal agency is reported as `0.0000`. In the detailed report, pressure has final normalized PR `0.5499` while goal agency is `0.0000`, which means the headline score is not purely goal-grounded.
+
+**Repair:** split scores permanently:
+
+```text
+PR_goal  = uses goal_agency only
+PR_mixed = uses fallback action_agency
+```
+
+Only `PR_goal` should rank worlds.
+
+---
+
+### 2. PR_base / PR_adapt inconsistency between reports
+
+The snapshot table shows lander `PR_BASE=0.997`, `PR_ADAPT=1.644`, while the deeper analysis section elsewhere discusses different comparison-campaign values like lander `2.832 → 2.065`. That suggests multiple v4 runs, formula variants, or report versions are being merged without clear version tags.
+
+**Repair:** every report should include:
+
+```text
+run_id
+git_commit
+formula_version
+config_hash
+seed
+steps
+normalization_version
+```
+
+---
+
+### 3. PR normalization can exceed intuitive bounds without warning
+
+The report says v4 rescales PR by mean law cost and law count, allowing scores to exceed 1.0. That is not necessarily wrong, but the interpretation shifts from “playability ratio” to “world-units per law-cost.”
+
+**Repair:** rename the values:
+
+```text
+PR_raw     = bounded internal signal
+PR_scaled  = benchmark index
+PR_goal    = truth score
+PR_mixed   = activity-assisted diagnostic
+```
+
+---
+
+### 4. Goal agency criteria are too brittle
+
+Pressure and freescape report goal agency `0.0000`; lander also appears as `0.00` in the mode table even though detailed lander shows `0.4898`, implying either inconsistent campaign rows or unstable criteria.
+
+**Repair:** use smooth goal functions, not binary “useful action” triggers. For pressure, reward pressure slope reduction. For freescape, reward displacement, zone transition, collision recovery, and shield preservation.
+
+---
+
+### 5. Coverage is mode-biased
+
+Coverage is meaningful for colony but meaningless for lander, asteroids, pressure, and freescape, where it remains `0.0000`. The comparison table still displays it for all modes, making motion worlds look empty despite rich continuous state movement.
+
+**Repair:** use mode-specific coverage:
+
+```text
+lander: landing-envelope coverage
+asteroids: orbital-band coverage
+pressure: zone-pressure state coverage
+freescape: zone/cuboid traversal coverage
+colony: cell coverage
+semantic: mode-space coverage
+```
+
+---
+
+### 6. State density over-rewards continuous motion
+
+Continuous modes generate new `(x,y,speed,heading)` signatures almost every step, which can inflate state density without proving meaningful gameplay. Colony is penalized because grid movement revisits states, while pressure and lander benefit from continuous drift.
+
+**Repair:** use entropy-binned state density:
+
+```text
+state_density = H(signature_distribution) / log(N_possible_bins)
+```
+
+This rewards diverse state occupancy, not merely endless tiny coordinate changes.
+
+---
+
+### 7. Prediction error can be zero in bad worlds
+
+A stuck or repetitive colony can become highly predictable. The transition predictor then reports low error, even though the world is boring or failed. Predictability alone is not playability.
+
+**Repair:** add a stagnation penalty:
+
+```text
+stagnation = repeated_signature_count / window
+PR denominator *= (1 + stagnation)
+```
+
+---
+
+## B. Adaptive Layer / DLASc Shortcomings
+
+### 8. Adaptive mode often does not adapt
+
+The analysis states that DLASc often fails to activate useful laws, making adaptive runs nearly identical to baseline except for HDC noise. The report’s comparison rows show asteroids, freescape, and semantic unchanged between base and adapt; pressure actually drops.
+
+**Repair:** require every adaptive run to report:
+
+```text
+laws_added
+laws_removed
+tokens_spent
+repair_events
+PR_before_repair
+PR_after_repair
+```
+
+If these are zero, label the run “adaptive inactive.”
+
+---
+
+### 9. Preconditions are too narrow
+
+`wall_following_agent` requires blocked-action evidence; `pid_controller` requires landing-target context; `risk_policy` requires pressure-reservoir context. If these flags are never set correctly, laws never activate.
+
+**Repair:** replace rigid preconditions with graded triggers:
+
+```text
+blocked_ratio > threshold
+goal_agency_slope < 0
+criticality_slope > 0
+coverage_delta < epsilon
+```
+
+---
+
+### 10. Token spending is not visible enough
+
+v4 says Gödel tokens are functional and can buy repair trials, but the report mostly shows final token counts, not spend histories.
+
+**Repair:** report:
+
+```text
+tokens_earned
+tokens_spent
+tokens_remaining
+spend_ratio
+repairs_bought
+failed_repairs
+```
+
+---
+
+### 11. Adaptive repairs are not tied to measured deltas
+
+A law can be activated without immediately measuring whether it improved PR, agency, coverage, or criticality.
+
+**Repair:** every repair event gets a before/after window:
+
+```text
+repair_gain = avg(PR_goal[t+1:t+W]) - avg(PR_goal[t-W:t])
+```
+
+---
+
+### 12. DLASc lacks a proper rollback mechanism
+
+If a law is activated and harms performance, it should be removed automatically.
+
+**Repair:** add repair trial leases:
+
+```text
+law_activation_ttl = 80 steps
+keep only if contribution > 0
+rollback otherwise
+```
+
+---
+
+## C. Gödel / HDC Shortcomings
+
+### 13. Anomaly threshold is too low
+
+The deeper analysis states that in one comparison campaign, Gödel tokens accumulated to `241` in `240` steps for several modes, caused by low anomaly threshold and high drift.
+
+**Repair:** adaptive threshold targeting an anomaly rate of about 5–10%:
+
+```text
+if anomaly_rate > target: threshold increases
+if anomaly_rate < target: threshold decreases
+```
+
+---
+
+### 14. Drift reference updates erase useful context
+
+The HDC memory is updated each step, which can make drift either saturate or normalize too quickly depending on implementation. That makes drift hard to interpret.
+
+**Repair:** keep three references:
+
+```text
+initial_memory
+rolling_memory
+post_repair_memory
+```
+
+Then report drift against all three.
+
+---
+
+### 15. Tokens are earned from surprise, not useful surprise
+
+A token should represent a surprise that matters. Right now any drift/prediction error can become currency.
+
+**Repair:** token earning should require:
+
+```text
+surprise AND harm
+```
+
+For example:
+
+```text
+if drift > θ and (goal_agency drops or criticality rises or coverage stalls):
+    earn token
+```
+
+---
+
+### 16. HDC does not yet guide repair selection strongly enough
+
+HDC detects semantic drift, but repair choice still appears mostly rule-based.
+
+**Repair:** encode law-effect vectors and choose the repair with maximum alignment to the detected failure mode:
+
+```text
+repair_score(law) = sim(law.effects, failure_vector) - λ × law_cost
+```
+
+---
+
+## D. LawStack / Law Cost Shortcomings
+
+### 17. Metric laws pollute physical law cost
+
+The semantic mode contains metric-only laws like `playable_reality`, `minimum_law_efficiency`, `compression_ratio`, and `semantic_entropy`, yet it reports law cost `6.15`.
+
+**Repair:** metric laws should have:
+
+```text
+family = metric
+cost_physics = 0
+cost_analysis = separate
+```
+
+---
+
+### 18. `playable_reality` as a law is circular
+
+If `playable_reality` is part of the law stack used to compute playable reality, the metric is partly self-referential. That can be interesting philosophically, but it contaminates engineering diagnostics.
+
+**Repair:** remove `playable_reality` from physics law stacks. Treat it as a report head, not a world law.
+
+---
+
+### 19. Dead-law detection is unreliable
+
+The recipes mark laws as dead, but the same laws are still used to define the recipe. The v4 report lists law stacks and dead laws together, implying contribution tracking is not yet trustworthy.
+
+**Repair:** use three statuses:
+
+```text
+executed
+effective
+dead
+```
+
+A law is dead only if it is either never executed or repeatedly has nonpositive contribution after ablation windows.
+
+---
+
+### 20. Cost coefficients are hand-tuned, not runtime measured
+
+Law cost is plausible but not empirically measured. A fixed `1.5` cost for one law and `0.5` for another may not match actual CPU time or semantic cost.
+
+**Repair:** compute hybrid cost:
+
+```text
+law_cost = static_design_cost + measured_runtime_ms + memory_pressure + branch_complexity
+```
+
+---
+
+### 21. Law contribution is not interaction-aware
+
+A law may be useless alone but useful in combination. Simple ablation can mislabel synergy laws as dead.
+
+**Repair:** include pairwise contribution sampling:
+
+```text
+C(A,B) = PR(A+B) - PR(A) - PR(B)
+```
+
+This finds synergy and redundancy.
+
+---
+
+## E. Mode-Specific Shortcomings
+
+### 22. Lander lacks landing outcome classification
+
+The lander has PR and goal agency but no strong terminal categories: landed, crashed, missed pad, orbiting, fuel-wasted, heat-failed.
+
+**Repair:** add:
+
+```text
+landed_safe
+hard_landing
+horizontal_miss
+fuel_empty
+hover_loop
+```
+
+---
+
+### 23. Pressure rewards field richness more than intervention
+
+Pressure has good state dynamics but goal agency `0.0000`; this means pressure diffusion produces world richness without proving player/control usefulness.
+
+**Repair:** pressure goal should be based on:
+
+```text
+dP/dt reduction
+criticality recovery
+zone equalization
+hysteresis decay
+```
+
+Not absolute pressure drop only.
+
+---
+
+### 24. Freescape movement threshold is too strict
+
+Freescape reports goal agency `0.0000` and law cost `9.70`, meaning a fairly expensive law stack is not translating into scored progress.
+
+**Repair:** reduce useful movement threshold and add zone/cuboid objectives:
+
+```text
+moved > 0.08
+new zone entered
+collision recovered
+shield improved
+height recovered
+```
+
+---
+
+### 25. Colony coverage remains too low
+
+Colony’s optimized PR is much better than baseline, but raw detailed coverage is tiny: baseline detailed colony coverage is `0.0052`, and the recipe coverage remains very small relative to a 24×24 grid.
+
+**Repair:** add anti-loop exploration:
+
+```text
+if same-region loop:
+    inject random turn
+    prefer unvisited neighbor
+    enable local BFS for 3-step horizon
+```
+
+---
+
+### 26. Semantic mode remains mostly observer, not controller
+
+Semantic mode has stable low PR and zero meaningful coverage in the table. It is valuable as a negative control, but it does not yet optimize anything.
+
+**Repair:** semantic mode should actively select repair proposals across modes:
+
+```text
+semantic_action = choose law repair for weakest mode
+semantic_goal = improvement in cross-mode PR_goal
+```
+
+---
+
+## F. Experiment / Reporting Shortcomings
+
+### 27. Optimization search space is too narrow
+
+The recipes mostly vary seed, wall density, and policy. Lander even shows `wall_follow`, which is semantically irrelevant to a lander unless the optimizer is sharing generic parameters across all modes.
+
+**Repair:** mode-specific optimization spaces:
+
+```text
+lander: PID gains, pad width, fuel curve
+asteroids: thrust cadence, attractor GM, wrap penalty
+pressure: drill power, pressure source, hysteresis leak
+freescape: friction, lift, collision damping
+colony: wall density, teleport chance, anti-loop policy
+semantic: repair thresholds, token costs
+```
+
+---
+
+### 28. Reports lack falsification gates
+
+The report describes fixes and results, but there is no strict pass/fail harness saying when v4 is invalid or when v5 succeeds. The v5 blueprint already points in the right direction: pass if adaptive PR_goal improves in most modes, tokens are spent, dead laws are pruned, and goal agency becomes nonzero in key modes.
+
+**Repair:** add a final validation section:
+
+```text
+[PASS/FAIL] Goal agency nonzero in 4/6 modes
+[PASS/FAIL] Tokens spent ratio > 0.35
+[PASS/FAIL] At least one repair law activated
+[PASS/FAIL] At least one dead law pruned
+[PASS/FAIL] PR_goal_META-K > PR_goal_baseline in 4/6 modes
+```
+
+---
+
+# Condensed Diagnosis
+
+v4’s **architecture is good**. The science layer is much stronger than v3: `LawStack` fixes global law-cost pollution, goal agency exists, prediction error is stateful, and the HDC token concept is no longer purely decorative. But v4’s **truth pipeline is still compromised**:
+
+```text
+activity can masquerade as agency
+tokens can accumulate without repair
+dead laws can remain in recipes
+continuous motion can masquerade as state richness
+semantic mode observes instead of governing
+```
+
+The v5 target is therefore clear:
+
+```text
+No fallback agency.
+Adaptive threshold, not token flood.
+Token spending, not token hoarding.
+Goal functions that reward partial progress.
+Metric laws separated from physics laws.
+Dead laws pruned by contribution windows.
+Semantic mode promoted from observer to repair arbiter.
+```
+
+That turns RGPUF from a **self-reporting simulator** into a **self-correcting micro-world forge**.
