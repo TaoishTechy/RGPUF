@@ -1,4 +1,4 @@
-### Date: May 04 2026 (https://github.com/TaoishTechy/RGPUF/)
+### Date: May 04 2026 (https://github.com/TaoishTechy/RGPUF/blob/main/examples/core_tier/lab_v4/lab_v4_snapshot.md)
 
 ```
 # RGPUF Lab v4 -- Micro-World Forge Report
@@ -3930,4 +3930,13 @@ step,mode,seed,x,y,z,speed,fuel,heat,pressure,suit,shield,criticality,pr,pr_norm
 46,semantic,42,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.065,0.065,0.0,6.15,4,0.0,0.0,0.0,0.0,0.5833,0.0006,1.0,0.0,0.0,0,0.0,0.0,"playable_reality,minimum_law_efficiency,compression_ratio,semantic_entropy",active,0,
 47,semantic,42,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.065,0.065,0.0,6.15,4,0.0,0.0,0.0,0.0,0.5833,0.0006,1.0,0.0,0.0,0,0.0,0.0,"playable_reality,minimum_law_efficiency,compression_ratio,semantic_entropy",active,0,
 48,semantic,42,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.065,0.065,0.0,6.15,4,0.0,0.0,0.0,0.0,0.5833,0.0006,1.0,0.0,0.0,0,0.0,0.0,"playable_reality,minimum_law_efficiency,compression_ratio,semantic_entropy",active,0,
+
+```
+
+```
+
+```
+
+```
+
 ```
